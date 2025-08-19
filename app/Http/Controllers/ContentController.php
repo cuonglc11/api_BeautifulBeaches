@@ -3,14 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\Regions;
+use App\Models\Contents;
 use App\Services\ResponseService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
-use function Laravel\Prompts\error;
-
-class RegionController extends Controller
+class ContentController extends Controller
 {
     protected $response;
     public function __construct(ResponseService $response)
@@ -24,7 +22,7 @@ class RegionController extends Controller
     public function index()
     {
         try {
-            return $this->response->json(true, data: Regions::all(), status: 200);
+            return $this->response->json(true, data: Contents::with('beaches')->get(), status: 200);
         } catch (\Throwable $th) {
             return $this->response->json(false, errors: $th->getMessage(), status: 500);
         }
@@ -37,14 +35,18 @@ class RegionController extends Controller
     {
         try {
             $request->validate([
-                'name' => 'required|string|unique:regions,name'
+                'title' => 'required | string',
+                'body' => 'required | string',
+                'beach_id' => 'required|integer|exists:beaches,id',
             ]);
-            $region = new Regions();
-            $region->name  = $request->name;
-            $region->save();
+            $content  = new Contents();
+            $content->title = $request->title;
+            $content->body = $request->body;
+            $content->beach_id = $request->beach_id;
+            $content->save();
             return $this->response->json(
                 true,
-                'Add region success',
+                'Add content success',
                 status: 200
             );
         } catch (ValidationException $th) {
@@ -62,7 +64,7 @@ class RegionController extends Controller
     public function show(string $id)
     {
         try {
-            return $this->response->json(true, data: Regions::findOrFail($id), status: 200);
+            return $this->response->json(true, data: Contents::with('beaches')->find($id), status: 200);
         } catch (\Throwable $th) {
             return $this->response->json(false, errors: $th->getMessage(), status: 500);
         }
@@ -73,16 +75,27 @@ class RegionController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $region =  Regions::findOrFail($id);
+        $content =  Contents::findOrFail($id);
+
         try {
             $request->validate([
-                'name' => 'required|string|unique:regions,name,' . $region->id
+                'title' => 'sometimes | string',
+                'body' => 'sometimes | string',
+                'beach_id' => 'sometimes|integer|exists:beaches,id',
             ]);
-            $region->name  = $request->name;
-            $region->save();
+            if ($request->has('title')) {
+                $content->title = $request->title;
+            }
+            if ($request->has('body')) {
+                $content->body = $request->body;
+            }
+            if ($request->has('beach_id')) {
+                $content->beach_id = $request->beach_id;
+            }
+            $content->save();
             return $this->response->json(
                 true,
-                'Update region success',
+                'Update content success',
                 status: 200
             );
         } catch (ValidationException $th) {
@@ -99,12 +112,12 @@ class RegionController extends Controller
      */
     public function destroy(string $id)
     {
-        $region =  Regions::findOrFail($id);
+        $content =  Contents::findOrFail($id);
         try {
-            $region->delete();
+            $content->delete();
             return $this->response->json(
                 true,
-                'Delete region success',
+                'Delete content success',
                 status: 200
             );
         } catch (\Throwable $th) {

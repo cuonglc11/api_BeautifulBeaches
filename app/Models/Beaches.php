@@ -9,6 +9,11 @@ class Beaches extends Model
 {
     use HasFactory;
     public function region() {
+
         return $this->belongsTo(Regions::class, 'region_id');
+    }
+    public function images()
+    {
+        return $this->hasMany(ImageBeaches::class, 'beach_id');
     }
 }

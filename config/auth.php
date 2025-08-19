@@ -40,6 +40,15 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'api' => [
+            'driver' => 'sanctum',
+            'provider' => 'users', // Admin
+        ],
+
+        'account' => [
+            'driver' => 'sanctum',
+            'provider' => 'accounts', // Khách hàng
+        ],
     ],
 
     /*
@@ -64,9 +73,12 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
         ],
-
-        // 'users' => [
-        //     'driver' => 'database',
+        'accounts' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Account::class,
+        ],
+        // 'account' => [
+        //     'driver' => 'acount',
         //     'table' => 'users',
         // ],
     ],
