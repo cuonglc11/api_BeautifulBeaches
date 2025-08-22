@@ -8,7 +8,7 @@ use App\Services\ResponseService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
-use function Laravel\Prompts\error;
+
 
 class RegionController extends Controller
 {

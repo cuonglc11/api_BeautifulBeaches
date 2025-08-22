@@ -26,7 +26,7 @@ class ChangePasswordController extends Controller
                 'email' => 'required|email|exists:accounts,email',
             ]);
             $otp = rand(100000, 999999);
-            Cache::put('otp_' . $request->email, $otp, now()->addMinutes(5));
+            Cache::put('otp_' . $otp , $request->email , now()->addMinutes(5));
             Mail::to($request->email)->send(new SendOtpMail($otp));
             return $this->response->json(
                 true,
@@ -47,20 +47,19 @@ class ChangePasswordController extends Controller
             $request->validate([
                 'password' => 'required|min:6',
                 'otp' => 'required|numeric',
-                'email' => 'required|email|exists:accounts,email',
             ]);
-            $cacheOtp = Cache::get('otp_' . $request->email);
-            if (!$cacheOtp || $cacheOtp != $request->otp) {
+            $email = Cache::get('otp_' . $request->otp);
+            if (!$email) {
                 return $this->response->json(
                     false,
                     errors: 'Invalid or expired OTP',
                     status: 400,
                 );
             }
-            $account  = Account::where('email', $request->email)->first();
+            $account  = Account::where('email',  $email)->first();
             $account->password = Hash::make($request->password);
             $account->save();
-            Cache::forget('otp_' . $request->email);
+            Cache::forget('otp_' . $request->otp);
             return $this->response->json(
                 true,
                 message: 'Password changed successfully',

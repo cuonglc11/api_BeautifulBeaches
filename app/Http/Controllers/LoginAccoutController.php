@@ -23,7 +23,7 @@ class LoginAccoutController extends Controller
                 'username' => 'required | string',
                 'password' => 'required',
             ]);
-            $account  = Account::where('username', $request->username)->first();
+            $account  = Account::where('username', $request->username)->where('status' , 1)->first();
             if (!$account || ! Hash::check($request->password, $account->password)) {
                 return $this->response->json(
                     false,

@@ -7,6 +7,7 @@ use App\Http\Controllers\ContentController;
 use App\Http\Controllers\LoginAccoutController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegionController;
+use App\Http\Controllers\UpdateAccoutController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -26,14 +27,21 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/login-account', [LoginAccoutController::class, 'login']);
-Route::apiResource('account', AccoutController::class);
-Route::prefix('admin')->group(function () {
+Route::apiResource('account', AccoutController::class)->except(['store']);
+Route::post('account/change-otp', [AccoutController::class, 'store'])
+    ->name('account.change-otp');
+Route::post('account/verify-account', [AccoutController::class, 'verifyAccount'])
+    ->name('account.verify-account');
+Route::prefix('admin')->middleware(['auth:sanctum', 'user.type:admin'])->group(function () {
     Route::apiResource('region', RegionController::class);
     Route::apiResource('beaches', BeachesController::class);
     Route::apiResource('content', ContentController::class);
+    Route::get('account-list' ,[AccoutController::class , 'index']);
+    Route::post('account-list', [AccoutController::class, 'permissionsAccout']);
 });
 
 Route::prefix('customer')->group(function () {
     Route::post('/sent-otp' , [ChangePasswordController::class , 'sentOtp']);
     Route::post('/change-pass', [ChangePasswordController::class, 'changePass']);
+    Route::post('/update-account', [UpdateAccoutController::class, 'index']);
 });
