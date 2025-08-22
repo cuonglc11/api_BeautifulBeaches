@@ -24,7 +24,6 @@ class EnsureUserType
             ], 401);
         }
 
-        // Nếu yêu cầu là admin nhưng user không phải User model
         if ($type === 'admin' && !($user instanceof \App\Models\User)) {
             return response()->json([
                 'success' => false,
@@ -32,7 +31,6 @@ class EnsureUserType
             ], 403);
         }
 
-        // Nếu yêu cầu là customer nhưng user không phải Account model
         if ($type === 'customer' && !($user instanceof \App\Models\Account)) {
             return response()->json([
                 'success' => false,

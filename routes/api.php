@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\AccoutController;
+use App\Http\Controllers\ApiHomeController;
 use App\Http\Controllers\BeachesController;
 use App\Http\Controllers\ChangePasswordController;
 use App\Http\Controllers\ContentController;
+use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\LoginAccoutController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegionController;
@@ -36,12 +38,17 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'user.type:admin'])->group(f
     Route::apiResource('region', RegionController::class);
     Route::apiResource('beaches', BeachesController::class);
     Route::apiResource('content', ContentController::class);
-    Route::get('account-list' ,[AccoutController::class , 'index']);
+    Route::get('account-list', [AccoutController::class, 'index']);
     Route::post('account-list', [AccoutController::class, 'permissionsAccout']);
 });
 
 Route::prefix('customer')->group(function () {
-    Route::post('/sent-otp' , [ChangePasswordController::class , 'sentOtp']);
+    Route::post('/sent-otp', [ChangePasswordController::class, 'sentOtp']);
     Route::post('/change-pass', [ChangePasswordController::class, 'changePass']);
     Route::post('/update-account', [UpdateAccoutController::class, 'index']);
+    Route::get('favorites', [FavoritesController::class, 'index']);
+    Route::post('favorites', [FavoritesController::class, 'store']);
 });
+Route::get('list-beaches', [ApiHomeController::class, 'listBeaches']);
+Route::get('list-regions', [ApiHomeController::class, 'region']);
+Route::get('beaches', [ApiHomeController::class, 'show']);
