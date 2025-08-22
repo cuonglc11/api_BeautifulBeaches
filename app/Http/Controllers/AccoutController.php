@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Mail\SendInfoMail;
 use App\Models\Account;
 use Illuminate\Http\Request;
 use App\Services\ResponseService;
@@ -42,6 +43,9 @@ class AccoutController extends Controller
             ]);
             $account =  Account::findOrFail($request->id_account);
             $account->status = $request->status;
+            $email  = $account->email;
+            $username  = $account->username;
+            Mail::to($email)->send(new SendInfoMail($email , $request->status , $username));
             $account->save();
             return $this->response->json(
                 true,

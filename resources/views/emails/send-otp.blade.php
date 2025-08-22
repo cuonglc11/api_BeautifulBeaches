@@ -5,13 +5,13 @@
     <title>OTP Verification</title>
 </head>
 <body>
-    <h2>Mã OTP của bạn</h2>
-    <p>Xin chào,</p>
-    <p>Mã OTP để xác thực tài khoản của bạn là:</p>
+    <h2>Your OTP Code</h2>
+    <p>Hello,</p>
+    <p>Your OTP code to verify your account is:</p>
 
     <h1 style="color: #2F8FED;">{{ $otp }}</h1>
 
-    <p>Mã này sẽ hết hạn sau 5 phút.</p>
-    <p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>
+    <p>This code will expire in 5 minutes.</p>
+    <p>Thank you for using our service!</p>
 </body>
 </html>

@@ -25,9 +25,9 @@ class UpdateAccoutController extends Controller
         try {
             $request->validate([
                 'full_name' => 'sometimes|string',
-                'email' => 'sometimes|string|unique:accounts,email',
-                'username' => 'sometimes|string|unique:accounts,username',
-                'phone' => 'sometimes|string|unique:accounts,phone',
+                'email' => 'sometimes|string|unique:accounts,email,' . $account->id,
+                'username' => 'sometimes|string|unique:accounts,username,'. $account->id,
+                'phone' => 'sometimes|string|unique:accounts,phone,' . $account->id,
                 'password' => 'sometimes|string|min:6',
                 'gender' => 'sometimes|numeric|min:6',
                 'birthday'  => 'sometimes|date|before:today',
