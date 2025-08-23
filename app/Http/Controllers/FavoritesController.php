@@ -53,4 +53,21 @@ class FavoritesController extends Controller
             );
         }
     }
+    public function delete(Request $request)
+    {
+        $account  = Auth::user()->id;
+        $id_beaches =  $request->query('id');
+
+        try {
+            $favorite = Favorites::where('beach_id', $id_beaches)->where('accout_id', $account)->first();
+            $favorite->delete();
+            return $this->response->json(
+                true,
+                'Delete favorite success',
+                status: 200
+            );
+        } catch (\Throwable $th) {
+            return $this->response->json(false, errors: $th->getMessage(), status: 500);
+        }
+    }
 }

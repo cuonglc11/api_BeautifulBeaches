@@ -4,6 +4,8 @@ use App\Http\Controllers\AccoutController;
 use App\Http\Controllers\ApiHomeController;
 use App\Http\Controllers\BeachesController;
 use App\Http\Controllers\ChangePasswordController;
+use App\Http\Controllers\CommentAdminController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ContentController;
 use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\LoginAccoutController;
@@ -40,6 +42,9 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'user.type:admin'])->group(f
     Route::apiResource('content', ContentController::class);
     Route::get('account-list', [AccoutController::class, 'index']);
     Route::post('account-list', [AccoutController::class, 'permissionsAccout']);
+    Route::get('comment', [CommentAdminController::class, 'list']);
+    Route::post('block-comment', [CommentAdminController::class, 'blockComment']);
+    Route::post('account-list', [AccoutController::class, 'permissionsAccout']);
 });
 
 Route::prefix('customer')->group(function () {
@@ -48,7 +53,12 @@ Route::prefix('customer')->group(function () {
     Route::post('/update-account', [UpdateAccoutController::class, 'index']);
     Route::get('favorites', [FavoritesController::class, 'index']);
     Route::post('favorites', [FavoritesController::class, 'store']);
+    Route::delete('favorites', [FavoritesController::class, 'delete']);
+    Route::post('comment', [CommentController::class, 'store']);
+    Route::put('comment/{id}', [CommentController::class, 'update']);
+    Route::delete('comment/{id}', [CommentController::class, 'delete']);
 });
 Route::get('list-beaches', [ApiHomeController::class, 'listBeaches']);
 Route::get('list-regions', [ApiHomeController::class, 'region']);
 Route::get('beaches', [ApiHomeController::class, 'show']);
+Route::get('count-favorite', [ApiHomeController::class, 'countFavorite']);

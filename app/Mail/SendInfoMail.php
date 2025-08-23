@@ -44,7 +44,7 @@ class SendInfoMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.send-info.',
+            view: 'emails.send-info',
             with: [
                 'email' => $this->email,
                 'status' => $this->status,

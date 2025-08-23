@@ -45,8 +45,8 @@ class AccoutController extends Controller
             $account->status = $request->status;
             $email  = $account->email;
             $username  = $account->username;
-            Mail::to($email)->send(new SendInfoMail($email , $request->status , $username));
             $account->save();
+            Mail::to($email)->send(new SendInfoMail($email , $request->status , $username));
             return $this->response->json(
                 true,
                 message: 'Update account ',
@@ -73,7 +73,7 @@ class AccoutController extends Controller
                 'username' => 'required|string|unique:accounts,username',
                 'phone' => 'required|string|unique:accounts,phone',
                 'password' => 'required|string|min:6',
-                'gender' => 'required|numeric|min:6',
+                'gender' => 'required|numeric',
                 'birthday'  => 'required|date|before:today',
             ]);
             $account = new Account();

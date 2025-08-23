@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Beaches;
+use App\Models\Favorites;
 use App\Models\Regions;
 use Illuminate\Http\Request;
 use App\Services\ResponseService;
@@ -61,6 +62,17 @@ class ApiHomeController extends Controller
         $id = $request->query('id');
         try {
             return $this->response->json(true, data: Beaches::with(['images', 'region'])->find($id), status: 200);
+        } catch (\Throwable $th) {
+            return $this->response->json(false, errors: $th->getMessage(), status: 500);
+        }
+    }
+    public function countFavorite(Request $request)
+    {
+        try {
+            $id_beaches =  $request->query('id');
+            $count = Favorites::where('beach_id' , $id_beaches)->count();
+            $data = ['count'=> $count];
+            return $this->response->json(true, data: $data, status: 200);
         } catch (\Throwable $th) {
             return $this->response->json(false, errors: $th->getMessage(), status: 500);
         }
