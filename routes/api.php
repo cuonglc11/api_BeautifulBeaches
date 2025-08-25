@@ -49,7 +49,8 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'user.type:admin'])->group(f
 
 Route::prefix('customer')->group(function () {
     Route::post('/sent-otp', [ChangePasswordController::class, 'sentOtp']);
-    Route::post('/change-pass', [ChangePasswordController::class, 'changePass']);
+    Route::post('/change-otp', [ChangePasswordController::class, 'changeOtp']);
+    Route::post('/change-password', [ChangePasswordController::class, 'changePass']);
     Route::post('/update-account', [UpdateAccoutController::class, 'index']);
     Route::get('favorites', [FavoritesController::class, 'index']);
     Route::post('favorites', [FavoritesController::class, 'store']);

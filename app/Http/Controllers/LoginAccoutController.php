@@ -17,7 +17,8 @@ class LoginAccoutController extends Controller
     {
         $this->response = $response;
     }
-    public function login(Request $request) {
+    public function login(Request $request)
+    {
         try {
             $request->validate([
                 'email' => 'required | string',
@@ -37,7 +38,7 @@ class LoginAccoutController extends Controller
                 );
             }
             $token  = $account->createToken('account-token')->plainTextToken;
-            $data = ['token' => $token , 'account' => $account];
+            $data = ['token' => $token, 'account' => $account, 'role' => 2];
             return $this->response->json(
                 true,
                 data: $data,

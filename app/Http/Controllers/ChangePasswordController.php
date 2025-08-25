@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SendOtpMail;
+use Illuminate\Support\Str;
 
 class ChangePasswordController extends Controller
 {
@@ -26,7 +27,7 @@ class ChangePasswordController extends Controller
                 'email' => 'required|email|exists:accounts,email',
             ]);
             $otp = rand(100000, 999999);
-            Cache::put('otp_' . $otp , $request->email , now()->addMinutes(5));
+            Cache::put('otp_' . $otp, $request->email, now()->addMinutes(5));
             Mail::to($request->email)->send(new SendOtpMail($otp));
             return $this->response->json(
                 true,
@@ -41,11 +42,10 @@ class ChangePasswordController extends Controller
             );
         }
     }
-    public function changePass(Request $request)
+    public function changeOtp(Request $request)
     {
         try {
             $request->validate([
-                'password' => 'required|min:6',
                 'otp' => 'required|numeric',
             ]);
             $email = Cache::get('otp_' . $request->otp);
@@ -56,10 +56,43 @@ class ChangePasswordController extends Controller
                     status: 400,
                 );
             }
+            $token = Str::random(40);
+            Cache::put('otp_' . $token, $email, now()->addMinutes(5));
+            Cache::forget('otp_' . $request->otp);
+            return $this->response->json(
+                true,
+                message: 'OTP changed successfully',
+                data: ['token_otp' => $token],
+                status: 200
+            );
+        } catch (ValidationException $th) {
+            return $this->response->json(
+                false,
+                errors: $th->errors(),
+                status: 422,
+            );
+        }
+    }
+    public function changePass(Request $request)
+    {
+        try {
+            $request->validate([
+                'token' => 'required|string',
+                'password' => 'required|string | min:6',
+
+            ]);
+            $email = Cache::get('otp_' . $request->token);
+            if (!$email) {
+                return $this->response->json(
+                    false,
+                    errors: 'Invalid or expired OTP',
+                    status: 400,
+                );
+            }
             $account  = Account::where('email',  $email)->first();
             $account->password = Hash::make($request->password);
             $account->save();
-            Cache::forget('otp_' . $request->otp);
+            Cache::forget('otp_' . $request->token);
             return $this->response->json(
                 true,
                 message: 'Password changed successfully',
