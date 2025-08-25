@@ -125,10 +125,6 @@ class BeachesController extends Controller
             $dataImage = [];
             if ($request->hasFile('images')) {
                 $oldImages = ImageBeaches::where('beach_id', $beache_id)->get();
-                foreach ($oldImages as $old) {
-                    $this->imgSevice->delete($old->img_link);
-                    $old->delete();
-                }
                 foreach ($request->file('images') as $file) {
                     $path  = $this->imgSevice->upload($file, 'beache');
                     $dataImage[] = [
