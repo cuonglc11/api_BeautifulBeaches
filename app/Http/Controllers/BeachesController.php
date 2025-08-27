@@ -24,10 +24,21 @@ class BeachesController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            return $this->response->json(true, data: Beaches::with(['images', 'region'])->get(), status: 200);
+            $search  = $request->query("search");
+            $beaches = Beaches::with(['images', 'region'])
+                ->where(function ($query) use ($search) {
+                    $query->where('name', 'LIKE', "%{$search}%")
+                        ->orWhere('location', 'LIKE', "%{$search}%")
+                        ->orWhereHas('region', function ($q) use ($search) {
+                            $q->where('name', 'LIKE', "%{$search}%");
+                        });
+                })
+                ->get();
+
+            return $this->response->json(true, data: !$search ? Beaches::with(['images', 'region'])->get() : $beaches, status: 200);
         } catch (\Throwable $th) {
             return $this->response->json(false, errors: $th->getMessage(), status: 500);
         }

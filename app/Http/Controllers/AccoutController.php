@@ -26,10 +26,14 @@ class AccoutController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            return $this->response->json(true, data: Account::all(), status: 200);
+            $search  = $request->query("search");
+            $rsSearchAccount  = Account::where('full_name', 'LIKE', '%' . $search . '%')
+            ->orWhere('email', 'LIKE', "%{$search}%")
+            ->orWhere('phone', 'LIKE', "%{$search}%")->get();
+            return $this->response->json(true, data: !$search ? Account::all() : $rsSearchAccount, status: 200);
         } catch (\Throwable $th) {
             return $this->response->json(false, errors: $th->getMessage(), status: 500);
         }

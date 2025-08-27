@@ -21,10 +21,11 @@ class RegionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $search  = $request->query("search");
         try {
-            return $this->response->json(true, data: Regions::all(), status: 200);
+            return $this->response->json(true, data: !$search ? Regions::all() : Regions::where('name', 'LIKE', '%' . $search . '%')->get() , status: 200);
         } catch (\Throwable $th) {
             return $this->response->json(false, errors: $th->getMessage(), status: 500);
         }
