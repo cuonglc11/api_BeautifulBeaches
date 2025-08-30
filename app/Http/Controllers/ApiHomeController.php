@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Beaches;
 use App\Models\Favorites;
+use App\Models\ImageBanner;
 use App\Models\Regions;
 use Illuminate\Http\Request;
 use App\Services\ResponseService;
+use Illuminate\Support\Facades\Redis;
 
 class ApiHomeController extends Controller
 {
@@ -23,7 +25,7 @@ class ApiHomeController extends Controller
         try {
             if ($request->query('keyword')) {
                 $keyword = $request->query('keyword');
-                $beaches = Beaches::with(['images', 'region'])
+                $beaches = Beaches::with(['images', 'region'])->withCount(['comments' , 'favorites'])
                     ->where(function ($query) use ($keyword) {
                         $query->where('name', 'like', "%{$keyword}%")
                             ->orWhere('location', 'like', "%{$keyword}%");
@@ -32,11 +34,11 @@ class ApiHomeController extends Controller
                 return $this->response->json(true, data: $beaches, status: 200);
             }
             if ($request->query('region')) {
-                return $this->response->json(true, data: Beaches::with(['images', 'region'])->where('region_id', $request->query('region'))->get(), status: 200);
+                return $this->response->json(true, data: Beaches::with(['images', 'region'])->withCount(['comments', 'favorites'])->where('region_id', $request->query('region'))->get(), status: 200);
             }
             if ($request->query('region') && $request->query('keyword')) {
                 $keyword = $request->query('keyword');
-                $beaches = Beaches::with(['images', 'region'])
+                $beaches = Beaches::with(['images', 'region'])->withCount(['comments', 'favorites'])
                     ->where(function ($query) use ($keyword) {
                         $query->where('name', 'like', "%{$keyword}%")
                             ->orWhere('location', 'like', "%{$keyword}%");
@@ -44,7 +46,7 @@ class ApiHomeController extends Controller
                     ->get();
                 return $this->response->json(true, data: $beaches, status: 200);
             }
-            return $this->response->json(true, data: Beaches::with(['images', 'region'])->get(), status: 200);
+            return $this->response->json(true, data: Beaches::with(['images', 'region'])->withCount(['comments', 'favorites'])->get(), status: 200);
         } catch (\Throwable $th) {
             return $this->response->json(false, errors: $th->getMessage(), status: 500);
         }
@@ -77,4 +79,14 @@ class ApiHomeController extends Controller
             return $this->response->json(false, errors: $th->getMessage(), status: 500);
         }
     }
+    public function listImageBanner(Request $request) {
+        $type = $request->query('type');
+
+        try {
+            return $this->response->json(true, data: ImageBanner::where('type' , $type)->get(), status: 200);
+        } catch (\Throwable $th) {
+            return $this->response->json(false, errors: $th->getMessage(), status: 500);
+        }
+    }
+
 }

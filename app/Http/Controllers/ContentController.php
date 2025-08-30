@@ -7,14 +7,18 @@ use App\Models\Contents;
 use App\Services\ResponseService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use App\Services\ImageService;
 
 class ContentController extends Controller
 {
     protected $response;
-    public function __construct(ResponseService $response)
+    protected $imgSevice;
+
+    public function __construct(ResponseService $response,  ImageService $imgSevice)
     {
         $this->middleware(['auth:sanctum', 'user.type:admin']);
         $this->response = $response;
+        $this->imgSevice = $imgSevice;
     }
     /**
      * Display a listing of the resource.
@@ -38,11 +42,15 @@ class ContentController extends Controller
                 'title' => 'required | string',
                 'body' => 'required | string',
                 'beach_id' => 'required|integer|exists:beaches,id',
+                'image' => 'required| image|mimes:jpg,jpeg,png|max:2048',
+
             ]);
             $content  = new Contents();
             $content->title = $request->title;
             $content->body = $request->body;
             $content->beach_id = $request->beach_id;
+            $file = $request->file('image');
+            $content->img_link  = $this->imgSevice->upload($file, 'content');
             $content->save();
             return $this->response->json(
                 true,
@@ -82,6 +90,8 @@ class ContentController extends Controller
                 'title' => 'sometimes | string',
                 'body' => 'sometimes | string',
                 'beach_id' => 'sometimes|integer|exists:beaches,id',
+                'image' => 'sometimes| image|mimes:jpg,jpeg,png|max:2048',
+
             ]);
             if ($request->has('title')) {
                 $content->title = $request->title;
@@ -91,6 +101,10 @@ class ContentController extends Controller
             }
             if ($request->has('beach_id')) {
                 $content->beach_id = $request->beach_id;
+            }
+            if ($request->has('image')) {
+                $file = $request->file('image');
+                $content->img_link  = $this->imgSevice->upload($file, 'content');
             }
             $content->save();
             return $this->response->json(

@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SendOtpMail;
+use App\Services\ImageService;
+
 
 
 
@@ -19,9 +21,12 @@ class AccoutController extends Controller
 {
     protected $response;
     protected $email;
-    public function __construct(ResponseService $response)
+    protected $imgSevice;
+
+    public function __construct(ResponseService $response,   ImageService $imgSevice)
     {
         $this->response = $response;
+        $this->imgSevice = $imgSevice;
     }
     /**
      * Display a listing of the resource.
@@ -31,8 +36,8 @@ class AccoutController extends Controller
         try {
             $search  = $request->query("search");
             $rsSearchAccount  = Account::where('full_name', 'LIKE', '%' . $search . '%')
-            ->orWhere('email', 'LIKE', "%{$search}%")
-            ->orWhere('phone', 'LIKE', "%{$search}%")->get();
+                ->orWhere('email', 'LIKE', "%{$search}%")
+                ->orWhere('phone', 'LIKE', "%{$search}%")->get();
             return $this->response->json(true, data: !$search ? Account::all() : $rsSearchAccount, status: 200);
         } catch (\Throwable $th) {
             return $this->response->json(false, errors: $th->getMessage(), status: 500);
@@ -50,7 +55,7 @@ class AccoutController extends Controller
             $email  = $account->email;
             $username  = $account->username;
             $account->save();
-            Mail::to($email)->send(new SendInfoMail($email , $request->status , $username));
+            Mail::to($email)->send(new SendInfoMail($email, $request->status, $username));
             return $this->response->json(
                 true,
                 message: 'Update account ',
@@ -79,6 +84,9 @@ class AccoutController extends Controller
                 'password' => 'required|string|min:6',
                 'gender' => 'required|numeric',
                 'birthday'  => 'required|date|before:today',
+                'image' => 'required| image|mimes:jpg,jpeg,png|max:2048',
+
+
             ]);
             $account = new Account();
             $account->full_name = $request->full_name;
@@ -89,16 +97,17 @@ class AccoutController extends Controller
             $account->sex = $request->gender;
             $this->email = $request->email;
             $account->password = Hash::make($request->password);
+            $file = $request->file('image');
+            $account->avata  = $this->imgSevice->upload($file, 'account');
             $account->save();
             $otp = rand(100000, 999999);
-            Cache::put('otp_' . $otp ,  $request->email, now()->addMinutes(5));
+            Cache::put('otp_' . $otp,  $request->email, now()->addMinutes(5));
             Mail::to($request->email)->send(new SendOtpMail($otp));
             return $this->response->json(
                 true,
                 message: 'OTP sent to email',
                 status: 200,
             );
-
         } catch (ValidationException $th) {
             return $this->response->json(
                 false,
@@ -107,7 +116,8 @@ class AccoutController extends Controller
             );
         }
     }
-    public function verifyAccount(Request $request) {
+    public function verifyAccount(Request $request)
+    {
         try {
             $request->validate([
                 'otp' => 'required|numeric',

@@ -55,7 +55,7 @@ class BeachesController extends Controller
                 'description' => 'required|string',
                 'location' => 'required|string',
                 'region_id' => 'required|integer|exists:regions,id',
-                'images'   => 'required|array',
+                'images'   => 'required|array |max:5',
                 'images.*' => 'image|mimes:jpg,jpeg,png|max:2048',
             ]);
             $beache = new Beaches();
@@ -67,6 +67,10 @@ class BeachesController extends Controller
             $beache_id  = $beache->id;
             $dataImage = [];
             if ($request->hasFile('images')) {
+                $files = $request->file('images');
+                if (count($files) > 5) {
+                    return $this->response->json(false, errors: 'Chỉ được phép upload tối đa 5 ảnh', status: 422);
+                }
                 foreach ($request->file('images') as $file) {
                     $path  = $this->imgSevice->upload($file, 'beache');
                     $dataImage[] = [

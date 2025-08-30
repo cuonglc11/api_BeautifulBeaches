@@ -8,6 +8,7 @@ use App\Http\Controllers\CommentAdminController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ContentController;
 use App\Http\Controllers\FavoritesController;
+use App\Http\Controllers\ImageBannerController;
 use App\Http\Controllers\LoginAccoutController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegionController;
@@ -40,6 +41,7 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'user.type:admin'])->group(f
     Route::apiResource('region', RegionController::class);
     Route::apiResource('beaches', BeachesController::class);
     Route::apiResource('content', ContentController::class);
+    Route::apiResource('image-banner', ImageBannerController::class);
     Route::get('account-list', [AccoutController::class, 'index']);
     Route::post('account-list', [AccoutController::class, 'permissionsAccout']);
     Route::get('comment', [CommentAdminController::class, 'list']);
@@ -61,5 +63,7 @@ Route::prefix('customer')->group(function () {
 });
 Route::get('list-beaches', [ApiHomeController::class, 'listBeaches']);
 Route::get('list-regions', [ApiHomeController::class, 'region']);
+Route::get('list-banner', [ApiHomeController::class, 'listImageBanner']);
+
 Route::get('beaches', [ApiHomeController::class, 'show']);
 Route::get('count-favorite', [ApiHomeController::class, 'countFavorite']);

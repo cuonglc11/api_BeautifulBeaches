@@ -23,4 +23,5 @@ class Comment extends Model
 
         return $this->belongsTo(Contents::class, 'content_id');
     }
+   
 }

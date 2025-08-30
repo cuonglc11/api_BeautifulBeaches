@@ -16,4 +16,12 @@ class Beaches extends Model
     {
         return $this->hasMany(ImageBeaches::class, 'beach_id');
     }
+    public function comments()
+    {
+        return $this->hasMany(Comment::class, 'beach_id');
+    }
+    public function favorites()
+    {
+        return $this->hasMany(Favorites::class, 'beach_id');
+    }
 }
