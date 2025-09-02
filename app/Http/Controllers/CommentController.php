@@ -23,7 +23,7 @@ class CommentController extends Controller
         try {
             $request->validate([
                 'beach_id' => 'required|integer|exists:beaches,id',
-                'content_id' => 'required|integer|exists:contents,id',
+                // 'content_id' => 'required|integer|exists:contents,id',
                 'message' => 'required|string',
             ]);
             $account  = Auth::user()->id;
@@ -31,7 +31,9 @@ class CommentController extends Controller
             $comment->accout_id = $account;
             $comment->status = 1;
             $comment->message = $request->message;
-            $comment->content_id = $request->content_id;
+            if ($request->has('content_id')) {
+                $comment->content_id = $request->content_id;
+            }
             $comment->beach_id = $request->beach_id;
             $comment->save();
             return $this->response->json(

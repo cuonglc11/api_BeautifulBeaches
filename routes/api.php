@@ -57,6 +57,8 @@ Route::prefix('customer')->group(function () {
     Route::get('favorites', [FavoritesController::class, 'index']);
     Route::post('favorites', [FavoritesController::class, 'store']);
     Route::delete('favorites', [FavoritesController::class, 'delete']);
+    Route::get('check-favorites', [FavoritesController::class, 'checkfavorites']);
+
     Route::post('comment', [CommentController::class, 'store']);
     Route::put('comment/{id}', [CommentController::class, 'update']);
     Route::delete('comment/{id}', [CommentController::class, 'delete']);
@@ -67,3 +69,4 @@ Route::get('list-banner', [ApiHomeController::class, 'listImageBanner']);
 
 Route::get('beaches', [ApiHomeController::class, 'show']);
 Route::get('count-favorite', [ApiHomeController::class, 'countFavorite']);
+Route::get('list-comment', [ApiHomeController::class, 'listComment']);

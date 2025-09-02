@@ -38,7 +38,7 @@ class LoginAccoutController extends Controller
                 );
             }
             $token  = $account->createToken('account-token')->plainTextToken;
-            $data = ['token' => $token, 'account' => $account, 'role' => 2];
+            $data = ['token' => $token, 'account' => $account->full_name, 'role' => 2];
             return $this->response->json(
                 true,
                 data: $data,

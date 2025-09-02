@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Beaches;
+use App\Models\Comment;
 use App\Models\Favorites;
 use App\Models\ImageBanner;
 use App\Models\Regions;
@@ -84,6 +85,15 @@ class ApiHomeController extends Controller
 
         try {
             return $this->response->json(true, data: ImageBanner::where('type' , $type)->get(), status: 200);
+        } catch (\Throwable $th) {
+            return $this->response->json(false, errors: $th->getMessage(), status: 500);
+        }
+    }
+    public function listComment(Request $request)
+    {
+        $id = $request->query('id');
+        try {
+            return $this->response->json(true, data: Comment::with('account')->where('beach_id', $id)->orderBy('id', 'desc')->get(), status: 200);
         } catch (\Throwable $th) {
             return $this->response->json(false, errors: $th->getMessage(), status: 500);
         }

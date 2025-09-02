@@ -55,7 +55,7 @@ class BeachesController extends Controller
                 'description' => 'required|string',
                 'location' => 'required|string',
                 'region_id' => 'required|integer|exists:regions,id',
-                'images'   => 'required|array |max:5',
+                'images'   => 'required|array |max:5|min:3',
                 'images.*' => 'image|mimes:jpg,jpeg,png|max:2048',
             ]);
             $beache = new Beaches();
@@ -113,7 +113,8 @@ class BeachesController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $beache =  Beaches::findOrFail($id);
+        $beache = Beaches::findOrFail($id);
+
         try {
             $request->validate([
                 'name' => 'sometimes|string|unique:regions,name,' . $beache->id,
@@ -122,7 +123,10 @@ class BeachesController extends Controller
                 'region_id' => 'sometimes|integer|exists:regions,id',
                 'images'   => 'sometimes|array',
                 'images.*' => 'image|mimes:jpg,jpeg,png|max:2048',
+                'old_images' => 'sometimes|array',
+                'old_images.*' => 'string'
             ]);
+
             if ($request->has('name')) {
                 $beache->name = $request->name;
             }
@@ -136,25 +140,44 @@ class BeachesController extends Controller
                 $beache->region_id = $request->region_id;
             }
             $beache->save();
-            $beache_id  = $beache->id;
-            $dataImage = [];
-            if ($request->hasFile('images')) {
-                $oldImages = ImageBeaches::where('beach_id', $beache_id)->get();
 
-                foreach ($request->file('images') as $file) {
+            $beache_id  = $beache->id;
+
+            $oldImagesInDb = ImageBeaches::where('beach_id', $beache_id)->get();
+            $keepImages = $request->old_images ?? [];
+            foreach ($oldImagesInDb as $img) {
+                if (!in_array($img->img_link, $keepImages)) {
+                    $img->delete();
+                }
+            }
+            if ($request->hasFile('images')) {
+                $currentCount = ImageBeaches::where('beach_id', $beache_id)->count();
+                $remainingSlots = 5 - $currentCount;
+                if ($remainingSlots <= 0) {
+                    return $this->response->json(
+                        false,
+                        'Không thể upload thêm ảnh. Tối đa 5 ảnh cho 1 beach.',
+                        status: 400
+                    );
+                }
+
+                $dataImage = [];
+                foreach (array_slice($request->file('images'), 0, $remainingSlots) as $file) {
                     $path  = $this->imgSevice->upload($file, 'beache');
                     $dataImage[] = [
-                        'img_link' => $path,
-                        'beach_id'     => $beache_id,
-                        'created_at'  => now(),
-                        'updated_at'  => now(),
+                        'img_link'   => $path,
+                        'beach_id'   => $beache_id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
                     ];
                 }
+
                 ImageBeaches::insert($dataImage);
             }
+
             return $this->response->json(
                 true,
-                'Update beache success',
+                'Update beach success',
                 status: 200
             );
         } catch (ValidationException $th) {
@@ -165,6 +188,7 @@ class BeachesController extends Controller
             );
         }
     }
+
 
     /**
      * Remove the specified resource from storage.

@@ -56,7 +56,7 @@ class FavoritesController extends Controller
     public function delete(Request $request)
     {
         $account  = Auth::user()->id;
-        $id_beaches =  $request->query('id');
+        $id_beaches =  $request->query('beach_id');
 
         try {
             $favorite = Favorites::where('beach_id', $id_beaches)->where('accout_id', $account)->first();
@@ -66,6 +66,29 @@ class FavoritesController extends Controller
                 'Delete favorite success',
                 status: 200
             );
+        } catch (\Throwable $th) {
+            return $this->response->json(false, errors: $th->getMessage(), status: 500);
+        }
+    }
+    public function checkfavorites(Request $request) {
+        $account  = Auth::user()->id;
+        $id_beaches =  $request->query('beach_id');
+        $favorite = Favorites::where('beach_id', $id_beaches)->where('accout_id', $account)->first();
+        if($favorite) {
+            return $this->response->json(
+                true,
+                message: true,
+                status: 200
+            );
+        }
+        return $this->response->json(
+            true,
+            message: false,
+            status: 200
+        );
+
+        try {
+            //code...
         } catch (\Throwable $th) {
             return $this->response->json(false, errors: $th->getMessage(), status: 500);
         }
