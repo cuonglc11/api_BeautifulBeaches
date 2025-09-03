@@ -26,7 +26,7 @@ class ApiHomeController extends Controller
         try {
             if ($request->query('keyword')) {
                 $keyword = $request->query('keyword');
-                $beaches = Beaches::with(['images', 'region'])->withCount(['comments' , 'favorites'])
+                $beaches = Beaches::with(['images', 'region'])->withCount(['comments', 'favorites'])
                     ->where(function ($query) use ($keyword) {
                         $query->where('name', 'like', "%{$keyword}%")
                             ->orWhere('location', 'like', "%{$keyword}%");
@@ -73,18 +73,19 @@ class ApiHomeController extends Controller
     {
         try {
             $id_beaches =  $request->query('id');
-            $count = Favorites::where('beach_id' , $id_beaches)->count();
-            $data = ['count'=> $count];
+            $count = Favorites::where('beach_id', $id_beaches)->count();
+            $data = ['count' => $count];
             return $this->response->json(true, data: $data, status: 200);
         } catch (\Throwable $th) {
             return $this->response->json(false, errors: $th->getMessage(), status: 500);
         }
     }
-    public function listImageBanner(Request $request) {
+    public function listImageBanner(Request $request)
+    {
         $type = $request->query('type');
 
         try {
-            return $this->response->json(true, data: ImageBanner::where('type' , $type)->get(), status: 200);
+            return $this->response->json(true, data: ImageBanner::where('type', $type)->get(), status: 200);
         } catch (\Throwable $th) {
             return $this->response->json(false, errors: $th->getMessage(), status: 500);
         }
@@ -92,11 +93,29 @@ class ApiHomeController extends Controller
     public function listComment(Request $request)
     {
         $id = $request->query('id');
+        if ($id) {
+            try {
+                return $this->response->json(true, data: Comment::with('account')->where('beach_id', $id)->orderBy('id', 'desc')->get(), status: 200);
+            } catch (\Throwable $th) {
+                return $this->response->json(false, errors: $th->getMessage(), status: 500);
+            }
+        }
         try {
-            return $this->response->json(true, data: Comment::with('account')->where('beach_id', $id)->orderBy('id', 'desc')->get(), status: 200);
+            return $this->response->json(true, data: Comment::with('account')->orderBy('id', 'desc')->limit(3)->get(), status: 200);
         } catch (\Throwable $th) {
             return $this->response->json(false, errors: $th->getMessage(), status: 500);
         }
     }
-
+    public function listBeachesRegion(Request $request)
+    {
+        $idBeache = $request->query('id');
+        $region = $request->query('region');
+        try {
+            return $this->response->json(true, data: Beaches::with(['images', 'region'])
+                ->where('region_id', $region)->where('id', '!=', $idBeache)
+                ->orderBy('id', 'desc')->limit(3)->get(), status: 200);
+        } catch (\Throwable $th) {
+            return $this->response->json(false, errors: $th->getMessage(), status: 500);
+        }
+    }
 }

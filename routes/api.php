@@ -70,3 +70,4 @@ Route::get('list-banner', [ApiHomeController::class, 'listImageBanner']);
 Route::get('beaches', [ApiHomeController::class, 'show']);
 Route::get('count-favorite', [ApiHomeController::class, 'countFavorite']);
 Route::get('list-comment', [ApiHomeController::class, 'listComment']);
+Route::get('list-beaches-region', [ApiHomeController::class, 'listBeachesRegion']);
