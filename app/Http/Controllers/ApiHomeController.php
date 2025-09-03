@@ -109,10 +109,11 @@ class ApiHomeController extends Controller
     public function listBeachesRegion(Request $request)
     {
         $idBeache = $request->query('id');
-        $region = $request->query('region');
+        $region = Beaches::find($idBeache);
+        // return $region;
         try {
             return $this->response->json(true, data: Beaches::with(['images', 'region'])
-                ->where('region_id', $region)->where('id', '!=', $idBeache)
+                ->where('region_id', $region->region_id)->where('id', '!=', $idBeache)
                 ->orderBy('id', 'desc')->limit(3)->get(), status: 200);
         } catch (\Throwable $th) {
             return $this->response->json(false, errors: $th->getMessage(), status: 500);
