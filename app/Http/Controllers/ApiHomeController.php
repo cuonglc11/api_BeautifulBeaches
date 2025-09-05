@@ -26,7 +26,12 @@ class ApiHomeController extends Controller
         try {
             if ($request->query('keyword')) {
                 $keyword = $request->query('keyword');
-                $beaches = Beaches::with(['images', 'region'])->withCount(['comments', 'favorites'])
+                $beaches = Beaches::with(['images', 'region'])->withCount([
+                    'comments as comments_count' => function ($query) {
+                        $query->where('status', 1);
+                    },
+                    'favorites'
+                ])
                     ->where(function ($query) use ($keyword) {
                         $query->where('name', 'like', "%{$keyword}%")
                             ->orWhere('location', 'like', "%{$keyword}%");
@@ -35,11 +40,21 @@ class ApiHomeController extends Controller
                 return $this->response->json(true, data: $beaches, status: 200);
             }
             if ($request->query('region')) {
-                return $this->response->json(true, data: Beaches::with(['images', 'region'])->withCount(['comments', 'favorites'])->where('region_id', $request->query('region'))->get(), status: 200);
+                return $this->response->json(true, data: Beaches::with(['images', 'region'])->withCount([
+                    'comments as comments_count' => function ($query) {
+                        $query->where('status', 1);
+                    },
+                    'favorites'
+                ])->where('region_id', $request->query('region'))->get(), status: 200);
             }
             if ($request->query('region') && $request->query('keyword')) {
                 $keyword = $request->query('keyword');
-                $beaches = Beaches::with(['images', 'region'])->withCount(['comments', 'favorites'])
+                $beaches = Beaches::with(['images', 'region'])->withCount([
+                    'comments as comments_count' => function ($query) {
+                        $query->where('status', 1);
+                    },
+                    'favorites'
+                ])
                     ->where(function ($query) use ($keyword) {
                         $query->where('name', 'like', "%{$keyword}%")
                             ->orWhere('location', 'like', "%{$keyword}%");
@@ -47,7 +62,12 @@ class ApiHomeController extends Controller
                     ->get();
                 return $this->response->json(true, data: $beaches, status: 200);
             }
-            return $this->response->json(true, data: Beaches::with(['images', 'region'])->withCount(['comments', 'favorites'])->get(), status: 200);
+            return $this->response->json(true, data: Beaches::with(['images', 'region'])->withCount([
+                'comments as comments_count' => function ($query) {
+                    $query->where('status', 1);
+                },
+                'favorites'
+            ])->get(), status: 200);
         } catch (\Throwable $th) {
             return $this->response->json(false, errors: $th->getMessage(), status: 500);
         }
@@ -95,13 +115,13 @@ class ApiHomeController extends Controller
         $id = $request->query('id');
         if ($id) {
             try {
-                return $this->response->json(true, data: Comment::with('account')->where('beach_id', $id)->orderBy('id', 'desc')->get(), status: 200);
+                return $this->response->json(true, data: Comment::with('account')->where('beach_id', $id)->where('status', 1)->orderBy('id', 'desc')->get(), status: 200);
             } catch (\Throwable $th) {
                 return $this->response->json(false, errors: $th->getMessage(), status: 500);
             }
         }
         try {
-            return $this->response->json(true, data: Comment::with('account')->orderBy('id', 'desc')->limit(3)->get(), status: 200);
+            return $this->response->json(true, data: Comment::with('account')->where('status', 1)->orderBy('id', 'desc')->limit(3)->get(), status: 200);
         } catch (\Throwable $th) {
             return $this->response->json(false, errors: $th->getMessage(), status: 500);
         }

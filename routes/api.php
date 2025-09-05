@@ -45,7 +45,7 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'user.type:admin'])->group(f
     Route::get('account-list', [AccoutController::class, 'index']);
     Route::post('account-list', [AccoutController::class, 'permissionsAccout']);
     Route::get('comment', [CommentAdminController::class, 'list']);
-    Route::post('block-comment', [CommentAdminController::class, 'blockComment']);
+    Route::post('comment', [CommentAdminController::class, 'blockComment']);
     Route::post('account-list', [AccoutController::class, 'permissionsAccout']);
 });
 

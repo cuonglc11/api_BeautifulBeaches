@@ -28,7 +28,6 @@ class CommentAdminController extends Controller
     }
     public function blockComment(Request $request)
     {
-        // return 1;
         try {
             $request->validate([
                 'id_comment' => 'required|integer|exists:comments,id',
