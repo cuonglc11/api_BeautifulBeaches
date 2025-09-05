@@ -54,6 +54,8 @@ class BeachesController extends Controller
                 'name' => 'required|string|unique:regions,name',
                 'description' => 'required|string',
                 'location' => 'required|string',
+                'latitude'    => 'required|numeric|between:-90,90',
+                'longitude'   => 'required|numeric|between:-180,180',
                 'region_id' => 'required|integer|exists:regions,id',
                 'images'   => 'required|array |max:5|min:3',
                 'images.*' => 'image|mimes:jpg,jpeg,png|max:2048',
@@ -62,6 +64,8 @@ class BeachesController extends Controller
             $beache->name  = $request->name;
             $beache->description  = $request->description;
             $beache->location  = $request->location;
+            $beache->latitude = $request->latitude;
+            $beache->longitude = $request->longitude;
             $beache->region_id  = $request->region_id;
             $beache->save();
             $beache_id  = $beache->id;
@@ -124,7 +128,9 @@ class BeachesController extends Controller
                 'images'   => 'sometimes|array',
                 'images.*' => 'image|mimes:jpg,jpeg,png|max:2048',
                 'old_images' => 'sometimes|array',
-                'old_images.*' => 'string'
+                'old_images.*' => 'string',
+                'latitude'    => 'sometimes|numeric|between:-90,90',
+                'longitude'   => 'sometimes|numeric|between:-180,180',
             ]);
 
             if ($request->has('name')) {
@@ -138,6 +144,12 @@ class BeachesController extends Controller
             }
             if ($request->has('region_id')) {
                 $beache->region_id = $request->region_id;
+            }
+            if($request->has('latitude')) {
+                $beache->latitude = $request->latitude;
+            }
+            if ($request->has('longitude')) {
+                $beache->longitude = $request->longitude;
             }
             $beache->save();
 
