@@ -40,7 +40,8 @@ class ApiHomeController extends Controller
                 return $this->response->json(true, data: $beaches, status: 200);
             }
             if ($request->query('region')) {
-                return $this->response->json(true, data: Beaches::with(['images', 'region'])->withCount([
+                $region  = Regions::find($request->query('region'))->name;
+                return $this->response->json(true , $region, data: Beaches::with(['images', 'region'])->withCount([
                     'comments as comments_count' => function ($query) {
                         $query->where('status', 1);
                     },
