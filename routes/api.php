@@ -13,6 +13,7 @@ use App\Http\Controllers\LoginAccoutController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegionController;
 use App\Http\Controllers\UpdateAccoutController;
+use App\Http\Controllers\VisitController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -71,3 +72,5 @@ Route::get('beaches', [ApiHomeController::class, 'show']);
 Route::get('count-favorite', [ApiHomeController::class, 'countFavorite']);
 Route::get('list-comment', [ApiHomeController::class, 'listComment']);
 Route::get('list-beaches-region', [ApiHomeController::class, 'listBeachesRegion']);
+Route::post('visit',[VisitController::class , 'store']);
+Route::get('visit', [VisitController::class, 'stats']);
