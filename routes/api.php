@@ -54,12 +54,12 @@ Route::prefix('customer')->group(function () {
     Route::post('/sent-otp', [ChangePasswordController::class, 'sentOtp']);
     Route::post('/change-otp', [ChangePasswordController::class, 'changeOtp']);
     Route::post('/change-password', [ChangePasswordController::class, 'changePass']);
-    Route::post('/update-account', [UpdateAccoutController::class, 'index']);
+    Route::get('/account', [UpdateAccoutController::class, 'index']);
+    Route::post('/update-account', [UpdateAccoutController::class, 'update']);
     Route::get('favorites', [FavoritesController::class, 'index']);
     Route::post('favorites', [FavoritesController::class, 'store']);
     Route::delete('favorites', [FavoritesController::class, 'delete']);
     Route::get('check-favorites', [FavoritesController::class, 'checkfavorites']);
-
     Route::post('comment', [CommentController::class, 'store']);
     Route::put('comment/{id}', [CommentController::class, 'update']);
     Route::delete('comment/{id}', [CommentController::class, 'delete']);

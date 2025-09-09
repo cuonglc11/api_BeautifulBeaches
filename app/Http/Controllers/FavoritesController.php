@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Beaches;
 use App\Models\Favorites;
 use Illuminate\Http\Request;
 use App\Services\ResponseService;
@@ -23,7 +24,13 @@ class FavoritesController extends Controller
     {
         $account  = Auth::user()->id;
         try {
-            return $this->response->json(true, data: Favorites::with('beaches')->where('accout_id',  $account)->get(), status: 200);
+            $id_beaches = Favorites::with('beaches')->where('accout_id',  $account)->pluck('beach_id');
+            return $this->response->json(true, data: Beaches::with(['images', 'region'])->withCount([
+                'comments as comments_count' => function ($query) {
+                    $query->where('status', 1);
+                },
+                'favorites'
+            ])->whereIn('id', $id_beaches)->get(), status: 200);
         } catch (\Throwable $th) {
             return $this->response->json(false, errors: $th->getMessage(), status: 500);
         }
@@ -70,11 +77,12 @@ class FavoritesController extends Controller
             return $this->response->json(false, errors: $th->getMessage(), status: 500);
         }
     }
-    public function checkfavorites(Request $request) {
+    public function checkfavorites(Request $request)
+    {
         $account  = Auth::user()->id;
         $id_beaches =  $request->query('beach_id');
         $favorite = Favorites::where('beach_id', $id_beaches)->where('accout_id', $account)->first();
-        if($favorite) {
+        if ($favorite) {
             return $this->response->json(
                 true,
                 message: true,

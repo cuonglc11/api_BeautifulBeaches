@@ -39,12 +39,14 @@ class VisitController extends Controller
             ->whereMonth('created_at', Carbon::now()->month)
             ->count();
         $total = Visit::count();
+        $online = Visit::where('updated_at', '>=', Carbon::now('Asia/Ho_Chi_Minh')->subMinutes(1))->count();
 
         return response()->json([
             'today' => $today,
             'week' => $thisWeek,
             'month' => $thisMonth,
             'total' => $total,
+            'online' => $online
         ]);
     }
 }
